@@ -1,4 +1,5 @@
-local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/Libs/DiscordUI.lua")()
+local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/Libs/DiscordUI.lua")();
+local RemoteEvent = loadstring(game:HttpGet("https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/ARX/RemoteEvent.lua"))();
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage");
 local Player = game:GetService("Players").LocalPlayer;
@@ -9,9 +10,13 @@ local PlayerData = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(Pl
 local PlayerCollection = ReplicatedStorage:WaitForChild("Player_Data"):WaitForChild(Player.Name):WaitForChild("Collection");
 
 local MainConfig = {
+    ['enable'] = true,
     ['lobby'] = {
         ['auto-reroll-trait'] = false,
         ['reroll-trait'] = nil,
+    },
+    ['join'] = {
+        ['auto-challenge'] = false
     },
     ['game'] = {
         ['auto-start'] = false,
@@ -71,60 +76,107 @@ local Objects = {};
 function GuiCreate()
     local win = DiscordLib:Window("Lemonade v1");
 
-    local Main = win:Server("Main", "http://www.roblox.com/asset/?id=6031075938")
+    local function LobbyServer()
+        local lobby = win:Server("Lobby", "http://www.roblox.com/asset/?id=6031075938");
+        local trait = lobby:Channel("Trait");
 
-    local Lobby = Main:Channel("Lobby");
+        trait:Toggle('Auto Reroll Trait', false, function(toggle)
+            MainConfig['lobby']['auto-reroll-trait'] = toggle;
+        end);
 
-    Lobby:Toggle('Auto Reroll Trait', false, function(toggle)
-        MainConfig['lobby']['auto-reroll-trait'] = toggle;
-    end);
-
-    Lobby:Dropdown("Trait Select", {"Range I", "Range II", "Range III",
-                            "HP I", "HP II", "HP III",
-                            "Damage I", "Damage II", "Damage III",
-                            "Sniper", "Brute", "Tank", "Investor",
-                            "Jack of All", "Crackshot", "Pure Strength", "Juggernaut", "Banker",
-                            "Seraph", "Capitalist", "Duplicator", "Sovereign"}, function(value)
-        MainConfig['lobby']['reroll-trait'] = value;
-    end);
-
-    local Game = Main:Channel("Game");
-
-    Game:Toggle('Vote Start', false, function(toggle)
-        MainConfig['game']['auto-start'] = toggle;
-    end);
-
-    Game:Toggle('Auto Replay', false, function(toggle)
-        MainConfig['game']['auto-replay'] = toggle;
-    end);
-
-    Game:Toggle('Auto Next', false, function(toggle)
-        MainConfig['game']['auto-next'] = toggle;
-    end);
-    
-    Game:Toggle('Auto Play Toggle', false, function(toggle)
-        local args = {
-            [1] = "AutoPlay",
-        }
-
-        game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Units"):WaitForChild("AutoPlay"):FireServer(unpack(args))
-    end);
-
-    
-    local Upgrades = win:Server("Upgrades", "");
-
-    for i = 1, 6 do
-        Objects['UnitLoadout' .. i] = Main:Channel("UnitLoadout " .. i);
-        Objects['UnitLoadout' .. i]:Label("Auto Deloy " .. i, false, function(toggle)
-            MainConfig['upgrade']['unit-loadout'][tostring(i)]['unit-loadout'] = toggle;
-        end)
-        Objects['UnitLoadout' .. i]:Label("Auto Upgrade " .. i, false, function(toggle)
-            MainConfig['upgrade']['unit-loadout'][tostring(i)]['unit-loadout'] = toggle;
-        end)
-        Objects['UnitLoadout' .. i]:Label("Deloy If Max " .. i, false, function(toggle)
-            MainConfig['upgrade']['unit-loadout'][tostring(i)]['unit-loadout'] = toggle;
-        end)
+        trait:Dropdown("Trait Select", {"Range I", "Range II", "Range III",
+                                "HP I", "HP II", "HP III",
+                                "Damage I", "Damage II", "Damage III",
+                                "Sniper", "Brute", "Tank", "Investor",
+                                "Jack of All", "Crackshot", "Pure Strength", "Juggernaut", "Banker",
+                                "Seraph", "Capitalist", "Duplicator", "Sovereign"}, function(value)
+            MainConfig['lobby']['reroll-trait'] = value;
+        end);
     end
+    LobbyServer()
+
+    local function JoinServer()
+        local join = win:Server("Join", "");
+
+        local story = join:Channel("Story");
+        story:Dropdown("Map", {"OnePiece", "Namak", "DemonSlayter", "Naruto", "OPM"}, function(value)
+            MainConfig['join']['story']['map'] = value;
+        end);
+        story:Dropdown("Difficulty", {"Normal", "Nightmare"}, function(value)
+            MainConfig['join']['story']['difficulty'] = value;
+        end);
+        story:Dropdown("Chapter", {"Chapter1", "Chapter2", "Chapter3", "Chapter4", "Chapter5", "Chapter6", "Chapter7", "Chapter8", "Chapter9", "Chapter10"}, function(value)
+            MainConfig['join']['story']['chapter'] = toggle;
+        end);
+        story:Toggle("Auto Story", false, function(toggle)
+            MainConfig['join']['story']['auto-join'] = toggle;
+        end);
+
+        local ranger = join:Channel("Ranger");
+        ranger:Dropdown("Map", {"OnePiece", "Namak", "DemonSlayter", "Naruto", "OPM"}, function(value)
+            MainConfig['join']['ranger']['map'] = value;
+        end);
+        ranger:Dropdown("Stage", {"Stage1", "Stage2", "Stage3"}, function(value)
+            MainConfig['join']['ranger']['stage'] = value;
+        end);
+        ranger:Toggle("Auto Ranger", false, function(toggle)
+            MainConfig['join']['ranger']['auto-join'] = toggle;
+        end);
+
+        local challange = join:Channel("Challenge");
+        challange:Toggle("Auto Challange", false, function(toggle)
+            MainConfig['join']['challange']['auto-challange'] = toggle;
+        end);
+    end
+    JoinServer()
+
+    local function GameServer()
+        local game = win:Server("Game", "");
+        local voting = game:Channel("Voting");
+
+        voting:Toggle("Auto Start", false, function(toggle)
+            MainConfig['game']['auto-start'] = toggle;
+        end);
+
+        voting:Toggle("Auto Replay", false, function(toggle)
+            MainConfig['game']['auto-replay'] = toggle;
+        end);
+
+        voting:Toggle("Auto Next", false, function(toggle)
+            MainConfig['game']['auto-next'] = toggle;
+        end);
+
+        voting:Toggle("Auto Play Toggle", false, function(toggle)
+            local args = {
+                [1] = "AutoPlay",
+            }
+
+            game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Units"):WaitForChild("AutoPlay"):FireServer(unpack(args))
+        end);
+    end
+    GameServer();
+    
+    local function UpgradeServer()
+        local upgrade = win:Server("Upgrade", "");
+
+        for i = 1, 6 do
+            local slot = tostring(i);
+            local unit = upgrade:Channel("Unit " .. slot);
+
+            unit:Toggle("Auto Upgrade", false, function(toggle)
+                MainConfig['upgrade']['unit-loadout'][slot]['auto-upgrade'] = toggle;
+            end);
+
+            unit:Toggle("Auto Deploy", false, function(toggle)
+                MainConfig['upgrade']['unit-loadout'][slot]['auto-deloy'] = toggle;
+            end);
+
+            unit:Toggle("Deploy If Max", false, function(toggle)
+                MainConfig['upgrade']['unit-loadout'][slot]['deloy-if-max'] = toggle;
+            end);
+        end
+    end
+    UpgradeServer();
 end
 
 local function GetInfo(unitName)
@@ -212,9 +264,15 @@ local function EventHandler()
 end
 
 local function workspace()
-    while (true) do
+    while (MainConfig['enable']) do
         loadConfig();
-    
+        GuiCreate();
+        EventHandler();
+
+        if (MainConfig['join']['auto-challenge']) then
+            RemoteEvent:joinChallange();
+        end
+
         if (MainConfig['game']['auto-start']) and (Values:WaitForChild("VotePlaying"):WaitForChild("VoteEnabled").Value) then
             game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VotePlaying"):FireServer()
         end
