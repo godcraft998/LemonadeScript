@@ -134,15 +134,15 @@ function GuiCreate()
         local game = win:Server("Game", "");
         local voting = game:Channel("Voting");
 
-        voting:Toggle("Auto Start", false, function(toggle)
+        voting:Toggle("Auto Start", MainConfig['game']['auto-start'], function(toggle)
             MainConfig['game']['auto-start'] = toggle;
         end);
 
-        voting:Toggle("Auto Replay", false, function(toggle)
+        voting:Toggle("Auto Replay", MainConfig['game']['auto-replay'], function(toggle)
             MainConfig['game']['auto-replay'] = toggle;
         end);
 
-        voting:Toggle("Auto Next", false, function(toggle)
+        voting:Toggle("Auto Next", MainConfig['game']['auto-next'], function(toggle)
             MainConfig['game']['auto-next'] = toggle;
         end);
 
@@ -163,16 +163,16 @@ function GuiCreate()
             local slot = tostring(i);
             local unit = upgrade:Channel("Unit " .. slot);
 
-            unit:Toggle("Auto Upgrade", false, function(toggle)
-                MainConfig['upgrade']['unit-loadout'][slot]['auto-upgrade'] = toggle;
+            unit:Toggle("Auto Upgrade", MainConfig['upgrades']['unit-loadout'][slot]['auto-upgrade'], function(toggle)
+                MainConfig['upgrades']['unit-loadout'][slot]['auto-upgrade'] = toggle;
             end);
 
-            unit:Toggle("Auto Deploy", false, function(toggle)
-                MainConfig['upgrade']['unit-loadout'][slot]['auto-deloy'] = toggle;
+            unit:Toggle("Auto Deploy", MainConfig['upgrades']['unit-loadout'][slot]['auto-deloy'], function(toggle)
+                MainConfig['upgrades']['unit-loadout'][slot]['auto-deloy'] = toggle;
             end);
 
-            unit:Toggle("Deploy If Max", false, function(toggle)
-                MainConfig['upgrade']['unit-loadout'][slot]['deloy-if-max'] = toggle;
+            unit:Toggle("Deploy If Max", MainConfig['upgrades']['unit-loadout'][slot]['deloy-if-max'], function(toggle)
+                MainConfig['upgrades']['unit-loadout'][slot]['deloy-if-max'] = toggle;
             end);
         end
     end
@@ -220,7 +220,7 @@ end
 
 local function loadConfig()
     if (isfile("Lemonade/" .. Player.Name .. ".json")) then
-        local config = readfile("Lemon Hub" .. Player.Name .. ".json");
+        local config = readfile("Lemonade/" .. Player.Name .. ".json");
         MainConfig = game:GetService("HttpService"):JSONDecode(config);
     end
 end
@@ -248,26 +248,26 @@ local function EventHandler()
             print("Unit Name: ", unitName);
             local maxUpgrade = GetMaxUpgrade(unitName);
     
-            MainConfig['upgrade']['unit-loadout'][slot]['name'] = unitName;
-            MainConfig['upgrade']['unit-loadout'][slot]['max-upgrade'] = maxUpgrade;
+            MainConfig['upgrades']['unit-loadout'][slot]['name'] = unitName;
+            MainConfig['upgrades']['unit-loadout'][slot]['max-upgrade'] = maxUpgrade;
         
             PlayerData:WaitForChild("UnitLoadout" .. slot).Changed:Connect(function()
                 local slot = tostring(i);
                 local unitName = GetUnitLoadout(slot);
                 local maxUpgrade = GetMaxUpgrade(unitName);
         
-                MainConfig['upgrade']['unit-loadout'][slot]['name'] = unitName;
-                MainConfig['upgrade']['unit-loadout'][slot]['max-upgrade'] = maxUpgrade;
+                MainConfig['upgrades']['unit-loadout'][slot]['name'] = unitName;
+                MainConfig['upgrades']['unit-loadout'][slot]['max-upgrade'] = maxUpgrade;
             end)
         end
     end
 end
 
 local function workspace()
+    loadConfig();
+    GuiCreate();
+    EventHandler();
     while (MainConfig['enable']) do
-        loadConfig();
-        GuiCreate();
-        EventHandler();
 
         if (MainConfig['join']['auto-challenge']) then
             RemoteEvent:joinChallange();
@@ -277,20 +277,20 @@ local function workspace()
             game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VotePlaying"):FireServer()
         end
     
-        if (MainConfig['auto-replay']) and (Values:WaitForChild("VoteRetry"):WaitForChild("VoteEnabled").Value) then
+        if (MainConfig['game']['auto-replay']) and (Values:WaitForChild("VoteRetry"):WaitForChild("VoteEnabled").Value) then
             game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VoteRetry"):FireServer()
         end
     
-        if (MainConfig['auto-next']) and (Values:WaitForChild("VoteNext"):WaitForChild("VoteEnabled").Value) then
+        if (MainConfig['game']['auto-next']) and (Values:WaitForChild("VoteNext"):WaitForChild("VoteEnabled").Value) then
             game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VoteNext"):FireServer()
         end
     
         if (Values:WaitForChild("GameRunning").Value) then
             for i = 1, 6 do
-                if (MainConfig['upgrade']['unit-loadout'][tostring(i)]['auto-upgrade']) then
-                    local unitName = MainConfig['upgrade']['unit-loadout'][tostring(i)]['name'];
+                if (MainConfig['upgrades']['unit-loadout'][tostring(i)]['auto-upgrade']) then
+                    local unitName = MainConfig['upgrades']['unit-loadout'][tostring(i)]['name'];
                     local level = Player:WaitForChild("UnitsFolder"):WaitForChild(unitName):WaitForChild("Upgrade_Folder"):WaitForChild("Level").Value;
-                    local maxUpgrade = MainConfig['upgrade']['unit-loadout'][tostring(i)]['max-upgrade'];
+                    local maxUpgrade = MainConfig['upgrades']['unit-loadout'][tostring(i)]['max-upgrade'];
     
                     if (level < maxUpgrade) then
                         local args = {
@@ -301,12 +301,12 @@ local function workspace()
                         game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Units"):WaitForChild("Upgrade"):FireServer(unpack(args))
                     end
                 end
-                if (MainConfig['upgrade']['unit-loadout'][tostring(i)]['auto-deloy']) then
-                    local unitName = MainConfig['upgrade']['unit-loadout'][tostring(i)]['name'];
+                if (MainConfig['upgrades']['unit-loadout'][tostring(i)]['auto-deloy']) then
+                    local unitName = MainConfig['upgrades']['unit-loadout'][tostring(i)]['name'];
                     local level = Player:WaitForChild("UnitsFolder"):WaitForChild(unitName):WaitForChild("Upgrade_Folder"):WaitForChild("Level").Value;
-                    local maxUpgrade = MainConfig['upgrade']['unit-loadout'][tostring(i)]['max-upgrade'];
+                    local maxUpgrade = MainConfig['upgrades']['unit-loadout'][tostring(i)]['max-upgrade'];
     
-                    if (MainConfig['upgrade']['unit-loadout'][tostring(i)]['deloy-if-max'] and (level >= maxUpgrade)) or not (MainConfig['upgrade']['unit-loadout'][tostring(i)]['deloy-if-max']) then
+                    if (MainConfig['upgrades']['unit-loadout'][tostring(i)]['deloy-if-max'] and (level >= maxUpgrade)) or not (MainConfig['upgrades']['unit-loadout'][tostring(i)]['deloy-if-max']) then
                         local args = {
                             Player:WaitForChild("UnitsFolder"):WaitForChild(unitName),
                             true
@@ -315,12 +315,10 @@ local function workspace()
                         game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("Units"):WaitForChild("Deployment"):FireServer(unpack(args))
                     end
                 end
-                if (MainConfig['upgrade']['unit-loadout'][tostring(i)]['deloy-if-max']) then
-                    local unitName = MainConfig['upgrade']['unit-loadout'][tostring(i)]['name'];
+                if (MainConfig['upgrades']['unit-loadout'][tostring(i)]['deloy-if-max']) then
+                    local unitName = MainConfig['upgrades']['unit-loadout'][tostring(i)]['name'];
                     local level = Player:WaitForChild("UnitsFolder"):WaitForChild(unitName):WaitForChild("Upgrade_Folder"):WaitForChild("Level").Value;
-                    local maxUpgrade = MainConfig['upgrade']['unit-loadout'][tostring(i)]['max-upgrade'];
-        
-                    print("Unit Name: ", unitName);
+                    local maxUpgrade = MainConfig['upgrades']['unit-loadout'][tostring(i)]['max-upgrade'];
     
                     if (level >= maxUpgrade) then
                         local args = {
@@ -338,3 +336,4 @@ local function workspace()
     end    
 end
 
+workspace();
