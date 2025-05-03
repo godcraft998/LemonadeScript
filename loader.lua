@@ -12,3 +12,4 @@ while not player do
     player = Players.LocalPlayer
 end
 
+loadstring(game:HttpGet("https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/ARX/main.lua"))();

@@ -1,4 +1,4 @@
-local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/godcraft998/RobloxScript/refs/heads/main/re-Vanis%20Lib.lua")()
+local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/Libs/DiscordUI.lua")()
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage");
 local Player = game:GetService("Players").LocalPlayer;
