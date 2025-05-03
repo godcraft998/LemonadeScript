@@ -12,4 +12,3 @@ while not player do
     player = Players.LocalPlayer
 end
 
-
