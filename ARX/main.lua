@@ -16,7 +16,20 @@ local MainConfig = {
         ['reroll-trait'] = nil,
     },
     ['join'] = {
-        ['auto-challenge'] = false
+        ['challange'] = {
+            ['auto-challange'] = false,
+        },
+        ['story'] = {
+            ['map'] = nil,
+            ['difficulty'] = nil,
+            ['chapter'] = nil,
+            ['auto-join'] = false,
+        },
+        ['ranger'] = {
+            ['map'] = nil,
+            ['stage'] = nil,
+            ['auto-join'] = false,
+        }
     },
     ['game'] = {
         ['auto-start'] = false,
@@ -123,8 +136,8 @@ function GuiCreate()
             MainConfig['join']['ranger']['auto-join'] = toggle;
         end);
 
-        local challange = join:Channel("Challenge");
-        challange:Toggle("Auto Challange", false, function(toggle)
+        local challange = join:Channel("Challange");
+        challange:Toggle("Auto Challange", MainConfig['join']['challange']['auto-challange'], function(toggle)
             MainConfig['join']['challange']['auto-challange'] = toggle;
         end);
     end
@@ -133,6 +146,8 @@ function GuiCreate()
     local function GameServer()
         local game = win:Server("Game", "");
         local voting = game:Channel("Voting");
+
+        print('Auto Start: ', MainConfig['game']['auto-start']);
 
         voting:Toggle("Auto Start", MainConfig['game']['auto-start'], function(toggle)
             MainConfig['game']['auto-start'] = toggle;
@@ -265,11 +280,12 @@ end
 
 local function workspace()
     loadConfig();
+    wait(0.1);
     GuiCreate();
     EventHandler();
     while (MainConfig['enable']) do
 
-        if (MainConfig['join']['auto-challenge']) then
+        if (MainConfig['join']['challange']['auto-challange']) then
             RemoteEvent:joinChallange();
         end
 
