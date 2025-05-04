@@ -112,6 +112,13 @@ function DiscordLib:Window(text)
 	local ServersHoldPadding = Instance.new("UIPadding")
 	local TopFrameHolder = Instance.new("Frame")
 
+	HidenGui = Instance.new("ImageButton");
+	HidenGui.Name = "HidenGui"
+	HidenGui.Parent = Discord
+	HidenGui.BackgroundColor3 = Color3.fromRGB(37, 39, 43)
+	HidenGui.Position = UDim2.new(0, 0, 0.745, 0)
+	HidenGui.Size = UDim2.new(0, 40, 0, 40)
+
 	MainFrame.Name = "MainFrame"
 	MainFrame.Parent = Discord
 	MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
@@ -461,6 +468,10 @@ function DiscordLib:Window(text)
 	CloseSettingsBtnIcon.Image = "http://www.roblox.com/asset/?id=6035047409"
 	CloseSettingsBtnIcon.ImageColor3 = Color3.fromRGB(222, 222, 222)
 	
+	HidenGui.MouseButton1Click:Connect(function()
+		MainFrame.Visible = not MainFrame.Visible
+	end)
+
 	CloseSettingsBtn.MouseButton1Click:Connect(function()
 		settingsopened = false
 		TopFrameHolder.Visible = true

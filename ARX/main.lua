@@ -18,8 +18,7 @@ local MainConfig = {
         ['reroll-trait'] = nil,
     },
     ['mics'] = {
-        ['fps-boost-enable'] = false,
-        ['fps-boost'] = false,
+        ['fps-boost-enable'] = false
     },
     ['join'] = {
         ['challenge'] = {
@@ -91,7 +90,8 @@ local MainConfig = {
 }
 
 local GameLogic = {
-    ['on-teleport'] = false;
+    ['on-teleport'] = false,
+    ['fps-boost'] = false
 }
 
 local Objects = {};
@@ -397,6 +397,11 @@ local function workspace()
             end
         end
     
+        if (MainConfig['mics']['fps-boost']) and (GameLogic['fps-boost'] == false) then
+            Misc:optimizeGame();
+            GameLogic['fps-boost'] = true;
+        end
+
         wait(0.25);
     end    
 end
