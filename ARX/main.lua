@@ -337,7 +337,7 @@ local function workspace()
         end
 
         if (MainConfig['game']['auto-start']) and (Values:WaitForChild("VotePlaying"):WaitForChild("VoteEnabled").Value) then
-            if (PlayerGui:WaitForChild("HUD"):WaitForChild("InGame"):WaitForChild("VotePlaying").Enabled) then
+            if (PlayerGui:WaitForChild("HUD"):WaitForChild("InGame"):WaitForChild("VotePlaying").Visible) then
                 game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VotePlaying"):FireServer()
             end
         end
