@@ -88,7 +88,7 @@ local Objects = {};
 
 function GuiCreate()
     local win = DiscordLib:Window("Lemonade v1");
-
+    local config = MainConfig;
     local function LobbyServer()
         local lobby = win:Server("Lobby", "http://www.roblox.com/asset/?id=6031075938");
         local trait = lobby:Channel("Trait");
@@ -146,8 +146,6 @@ function GuiCreate()
     local function GameServer()
         local game = win:Server("Game", "");
         local voting = game:Channel("Voting");
-
-        print('Auto Start: ', MainConfig['game']['auto-start']);
 
         voting:Toggle("Auto Start", MainConfig['game']['auto-start'], function(toggle)
             MainConfig['game']['auto-start'] = toggle;
@@ -227,17 +225,19 @@ local function GetUnitLoadout(slot)
 end
 
 local function saveConfig()
-    if (not isfolder("Lemonade")) then
-        makefolder("Lemonade")
+    if (not isfolder("Lemonade/ARX")) then
+        makefolder("Lemonade/ARX")
     end
-    writefile("Lemonade/" .. Player.Name .. ".json", game:GetService("HttpService"):JSONEncode(MainConfig));
+    writefile("Lemonade/ARX/" .. Player.Name .. ".json", game:GetService("HttpService"):JSONEncode(MainConfig));
 end
 
 local function loadConfig()
-    if (isfile("Lemonade/" .. Player.Name .. ".json")) then
-        local config = readfile("Lemonade/" .. Player.Name .. ".json");
+    if (isfile("Lemonade/ARX/" .. Player.Name .. ".json")) then
+        local config = readfile("Lemonade/ARX/" .. Player.Name .. ".json");
         MainConfig = game:GetService("HttpService"):JSONDecode(config);
+        return true;
     end
+    return false;
 end
 
 local function EventHandler()
@@ -260,7 +260,6 @@ local function EventHandler()
         local slot = tostring(i);
         local unitName = GetUnitLoadout(slot);
         if (unitName ~= nil) then
-            print("Unit Name: ", unitName);
             local maxUpgrade = GetMaxUpgrade(unitName);
     
             MainConfig['upgrades']['unit-loadout'][slot]['name'] = unitName;
@@ -279,7 +278,7 @@ local function EventHandler()
 end
 
 local function workspace()
-    loadConfig();
+    print(loadConfig());
     wait(0.1);
     GuiCreate();
     EventHandler();
