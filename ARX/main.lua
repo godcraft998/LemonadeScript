@@ -154,7 +154,7 @@ function GuiCreate()
     JoinServer()
 
     local function GameServer()
-        local game = win:Server("Game", "http://www.roblox.com/asset/?id=270304380");
+        local game = win:Server("Game", "");
         local voting = game:Channel("Voting");
 
         voting:Toggle("Auto Start", MainConfig['game']['auto-start'], function(toggle)
@@ -202,7 +202,7 @@ function GuiCreate()
     UpgradeServer();
 
     task.spawn(function()
-        local settings = win:Server("Settings", "http://www.roblox.com/asset/?id=13974336785");
+        local settings = win:Server("Settings", "");
 
         local fps = settings:Channel("FPS");
         fps:Toggle("FPS Boost", MainConfig['mics']['fps-boost'], function(toggle)
