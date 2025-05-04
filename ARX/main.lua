@@ -22,8 +22,8 @@ local MainConfig = {
         ['fps-boost'] = false,
     },
     ['join'] = {
-        ['challange'] = {
-            ['auto-challange'] = false,
+        ['challenge'] = {
+            ['auto-challenge'] = false,
         },
         ['story'] = {
             ['map'] = nil,
@@ -146,9 +146,9 @@ function GuiCreate()
             MainConfig['join']['ranger']['auto-join'] = toggle;
         end);
 
-        local challange = join:Channel("Challange");
-        challange:Toggle("Auto Challange", MainConfig['join']['challange']['auto-challange'], function(toggle)
-            MainConfig['join']['challange']['auto-challange'] = toggle;
+        local challenge = join:Channel("Challenge");
+        challenge:Toggle("Auto Challenge", MainConfig['join']['challenge']['auto-challenge'], function(toggle)
+            MainConfig['join']['challenge']['auto-challenge'] = toggle;
         end);
     end
     JoinServer()
@@ -315,10 +315,13 @@ local function EventHandler()
 end
 
 local function waitLoaded()
-    game:GetService("ReplicatedStorage"):WaitForChild("Player_Data"):WaitForChild(Player.Name):WaitForChild("Data"):WaitForChild("UnitLoadout1");
+    local loadingUI = PlayerGui:WaitForChild("LoadingDataUI")
+    while loadingUI.Enabled do
+        task.wait()
+    end
 end
 
-local function workspace();
+local function workspace()
     waitLoaded();
     loadConfig();
     wait(0.1);
@@ -326,15 +329,17 @@ local function workspace();
     EventHandler();
     while (MainConfig['enable']) do
 
-        if (MainConfig['join']['challange']['auto-challange']) and (GameLogic['on-teleport'] == false) then
-            if not (ReplicatedStorage:WaitForChild("Values"):WaitForChild("Game"):WaitForChild("GameMode").Value == "Challange") then
-                RemoteEvent:joinChallange();
+        if (MainConfig['join']['challenge']['auto-challenge']) and (GameLogic['on-teleport'] == false) then
+            if (game:GetService("ReplicatedStorage"):WaitForChild("Values"):WaitForChild("Game"):WaitForChild("Gamemode").Value ~= "Challenge") then
+                RemoteEvent:joinChallenge();
                 GameLogic['on-teleport'] = true;
             end
         end
 
         if (MainConfig['game']['auto-start']) and (Values:WaitForChild("VotePlaying"):WaitForChild("VoteEnabled").Value) then
-            game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VotePlaying"):FireServer()
+            if (PlayerGui:WaitForChild("HUD"):WaitForChild("InGame"):WaitForChild("VotePlaying").Enabled) then
+                game:GetService("ReplicatedStorage"):WaitForChild("Remote"):WaitForChild("Server"):WaitForChild("OnGame"):WaitForChild("Voting"):WaitForChild("VotePlaying"):FireServer()
+            end
         end
     
         if (MainConfig['game']['auto-replay']) and (Values:WaitForChild("VoteRetry"):WaitForChild("VoteEnabled").Value) then
@@ -396,4 +401,4 @@ local function workspace();
     end    
 end
 
-workspace();
+task.spawn(workspace)

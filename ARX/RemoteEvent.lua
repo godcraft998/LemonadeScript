@@ -1,6 +1,6 @@
 local modules = {};
 
-function modules:joinChallange()
+function modules:joinChallenge()
     local args = {
         [1] = "Create",
         [2] = {
