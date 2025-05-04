@@ -1,4 +1,6 @@
 local DiscordLib = loadstring(game:HttpGet"https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/Libs/DiscordUI.lua")();
+local Misc = loadstring(game:HttpGet("https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/Libs/Misc.lua"))();
+
 local RemoteEvent = loadstring(game:HttpGet("https://raw.githubusercontent.com/godcraft998/LemonadeScript/refs/heads/main/ARX/RemoteEvent.lua"))();
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage");
@@ -14,6 +16,10 @@ local MainConfig = {
     ['lobby'] = {
         ['auto-reroll-trait'] = false,
         ['reroll-trait'] = nil,
+    },
+    ['mics'] = {
+        ['fps-boost-enable'] = false,
+        ['fps-boost'] = false,
     },
     ['join'] = {
         ['challange'] = {
@@ -84,6 +90,10 @@ local MainConfig = {
     }
 }
 
+local GameLogic = {
+    ['on-teleport'] = false;
+}
+
 local Objects = {};
 
 function GuiCreate()
@@ -144,7 +154,7 @@ function GuiCreate()
     JoinServer()
 
     local function GameServer()
-        local game = win:Server("Game", "");
+        local game = win:Server("Game", "http://www.roblox.com/asset/?id=270304380");
         local voting = game:Channel("Voting");
 
         voting:Toggle("Auto Start", MainConfig['game']['auto-start'], function(toggle)
@@ -190,6 +200,18 @@ function GuiCreate()
         end
     end
     UpgradeServer();
+
+    task.spawn(function()
+        local settings = win:Server("Settings", "http://www.roblox.com/asset/?id=13974336785");
+
+        local fps = settings:Channel("FPS");
+        fps:Toggle("FPS Boost", MainConfig['mics']['fps-boost'], function(toggle)
+            MainConfig['mics']['fps-boost'] = toggle;
+            if (toggle) then
+                Misc:optimizeGame();
+            end
+        end);
+    end)
 end
 
 local function GetInfo(unitName)
@@ -224,20 +246,35 @@ local function GetUnitLoadout(slot)
     return name;
 end
 
+local function mergeConfig(defaults, loaded)
+    for key, value in pairs(defaults) do
+        if type(value) == "table" then
+            if type(loaded[key]) ~= "table" then
+                loaded[key] = {}
+            end
+            mergeConfig(value, loaded[key])
+        elseif loaded[key] == nil then
+            loaded[key] = value
+        end
+    end
+end
+
+local function loadConfig()
+    local path = "Lemonade/ARX/" .. Player.Name .. ".json";
+    if isfile(path) then
+        local loadedData = game:GetService("HttpService"):JSONDecode(readfile(path));
+        mergeConfig(MainConfig, loadedData);
+        MainConfig = loadedData; -- chứa đủ các khóa
+        return true;
+    end
+    return false;
+end
+
 local function saveConfig()
     if (not isfolder("Lemonade/ARX")) then
         makefolder("Lemonade/ARX")
     end
     writefile("Lemonade/ARX/" .. Player.Name .. ".json", game:GetService("HttpService"):JSONEncode(MainConfig));
-end
-
-local function loadConfig()
-    if (isfile("Lemonade/ARX/" .. Player.Name .. ".json")) then
-        local config = readfile("Lemonade/ARX/" .. Player.Name .. ".json");
-        MainConfig = game:GetService("HttpService"):JSONDecode(config);
-        return true;
-    end
-    return false;
 end
 
 local function EventHandler()
@@ -284,8 +321,9 @@ local function workspace()
     EventHandler();
     while (MainConfig['enable']) do
 
-        if (MainConfig['join']['challange']['auto-challange']) then
+        if (MainConfig['join']['challange']['auto-challange']) and (GameLogic['on-teleport'] == false) then
             RemoteEvent:joinChallange();
+            GameLogic['on-teleport'] = true;
         end
 
         if (MainConfig['game']['auto-start']) and (Values:WaitForChild("VotePlaying"):WaitForChild("VoteEnabled").Value) then
@@ -347,7 +385,7 @@ local function workspace()
             end
         end
     
-        wait(0.5);
+        wait(0.25);
     end    
 end
 

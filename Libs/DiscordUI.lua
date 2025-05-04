@@ -161,6 +161,7 @@ function DiscordLib:Window(text)
 	CloseBtn.TextSize = 14.000
 	CloseBtn.BorderSizePixel = 0
 	CloseBtn.AutoButtonColor = false
+	CloseBtn.Visible = false;
 
 	CloseIcon.Name = "CloseIcon"
 	CloseIcon.Parent = CloseBtn
@@ -183,6 +184,7 @@ function DiscordLib:Window(text)
 	MinimizeBtn.TextSize = 14.000
 	MinimizeBtn.BorderSizePixel = 0
 	MinimizeBtn.AutoButtonColor = false
+	MinimizeBtn.Visible = false;
 
 	MinimizeIcon.Name = "MinimizeLabel"
 	MinimizeIcon.Parent = MinimizeBtn
