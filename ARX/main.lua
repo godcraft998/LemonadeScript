@@ -315,8 +315,8 @@ local function EventHandler()
 end
 
 local function waitLoaded()
-    local loadingUI = PlayerGui:WaitForChild("LoadingDataUI")
-    while loadingUI.Enabled do
+    local loaded = game:GetService("ReplicatedStorage"):WaitForChild("Player_Data"):WaitForChild(Player.Name):WaitForChild("Data"):WaitForChild("UnitLoadout1")
+    while loaded.Enabled do
         task.wait()
     end
 end
