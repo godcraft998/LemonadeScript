@@ -314,16 +314,23 @@ local function EventHandler()
     end
 end
 
-local function workspace()
-    print(loadConfig());
+local function waitLoaded()
+    game:GetService("ReplicatedStorage"):WaitForChild("Player_Data"):WaitForChild(Player.Name):WaitForChild("Data"):WaitForChild("UnitLoadout1");
+end
+
+local function workspace();
+    waitLoaded();
+    loadConfig();
     wait(0.1);
     GuiCreate();
     EventHandler();
     while (MainConfig['enable']) do
 
         if (MainConfig['join']['challange']['auto-challange']) and (GameLogic['on-teleport'] == false) then
-            RemoteEvent:joinChallange();
-            GameLogic['on-teleport'] = true;
+            if not (ReplicatedStorage:WaitForChild("Values"):WaitForChild("Game"):WaitForChild("GameMode").Value == "Challange") then
+                RemoteEvent:joinChallange();
+                GameLogic['on-teleport'] = true;
+            end
         end
 
         if (MainConfig['game']['auto-start']) and (Values:WaitForChild("VotePlaying"):WaitForChild("VoteEnabled").Value) then
