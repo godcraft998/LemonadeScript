@@ -316,7 +316,7 @@ end
 
 local function waitLoaded()
     local loaded = game:GetService("ReplicatedStorage"):WaitForChild("Player_Data"):WaitForChild(Player.Name):WaitForChild("Data"):WaitForChild("UnitLoadout1")
-    while loaded do
+    while not loaded do
         task.wait()
     end
 end
