@@ -44,11 +44,12 @@ local function main()
     while enable do
         print("Ticks: " .. ticks);
         if (hasPrompt()) then
+            wait(5);
             selectPortal();
 
             print("Prompt found, selecting portal...");
 
-            wait(0.5);
+            wait(2);
 
             local portals = getPortals("Summer Laguna");
             table.sort(portals, function(a, b)
